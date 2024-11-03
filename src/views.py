@@ -29,7 +29,7 @@ def time_range(input_date: str) -> tuple[str, str]:
     return start_time, end_time
 
 
-def reading_xlsx(file_path: str) -> list[dict]:
+def read_xlsx(file_path: str) -> list[dict]:
     """This function allows to read <operations.xlsx> and returns a list of
     dictionaries."""
     operations = []
@@ -44,12 +44,25 @@ def reading_xlsx(file_path: str) -> list[dict]:
     return operations
 
 
-def filter_by_time_range(operations: list) -> list:
-    """Function"""
+def filter_by_time_range(operations: list, input_date: str) -> list:
+    """Function <filter_by_time_range> takes list of operations and returns a new list of operations
+    filtered by time range"""
+    filtered_operations = []
+    start_time, end_time = time_range(input_date)
+    start_time_obj = datetime.datetime.strptime(start_time, "%d.%m.%Y")
+    end_time_obj = datetime.datetime.strptime(end_time, "%d.%m.%Y")
+    for operation in operations:
+        if isinstance(operation["Дата платежа"], str) and start_time_obj <= datetime.datetime.strptime(operation["Дата платежа"], "%d.%m.%Y") <= end_time_obj:
+            filtered_operations.append(operation)
+
+    return filtered_operations
 
 
 
 if __name__ == "__main__":
-    print(greetings(input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")))
-    print(time_range(input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")))
-    print(reading_xlsx("../data/operations.xlsx"))
+    # print(greetings(input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")))
+    # print(time_range(input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")))
+    # print(read_xlsx("../data/operations.xlsx"))
+    print(filter_by_time_range(read_xlsx("../data/operations.xlsx"), input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")))
+    print(len(filter_by_time_range(read_xlsx("../data/operations.xlsx"), input("Введите дату в формате YYYY-MM-DD HH:MM:SS - "))))
+# 2021-02-15 00:00:00
