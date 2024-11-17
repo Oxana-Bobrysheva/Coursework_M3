@@ -1,6 +1,7 @@
 import datetime
-
+import numpy as np
 import pandas as pd
+from numpy import nan
 
 
 def greetings(input_date: str) -> str:
@@ -59,14 +60,83 @@ def filter_by_time_range(operations: list, input_date: str) -> list:
     return filtered_operations
 
 
-def get_cards(file_path, input_date):
+def get_unique_cards(filtered_transactions):
     cards_info: list = []
-    transactions = filter_by_time_range(read_xlsx(file_path), input_date)
-    if transactions:
-        for transaction in transactions:
+    if filtered_transactions:
+        for transaction in filtered_transactions:
             card_number = transaction["Номер карты"]
             if card_number and pd.notna(card_number):
-                card_number = card_number[-4:]
                 cards_info.append(card_number)
     unique_cards = set(cards_info)
     return list(unique_cards)
+
+
+def get_list_of_cards_info(cards_info: list, filtered_transactions: list) -> list[dict]:
+    list_of_cards_info = []
+
+    for card in cards_info:
+        last_digits = card[-4:]
+        total_spent = 0
+        cashback = 0
+
+        for transaction in filtered_transactions:
+            if transaction["Номер карты"] == card:
+                total_spent += transaction['Сумма платежа']
+                # Получаем значение кэшбэка, если оно nan, добавляем 0
+                cashback_value = transaction.get("Кэшбэк", 0)
+                if isinstance(cashback_value, (int, float)) and not np.isnan(cashback_value):
+                    cashback += cashback_value
+        total_spent = round(total_spent, 2)
+        list_of_cards_info.append({
+            "last_digits": last_digits,
+            "total_spent": total_spent,
+            "cashback": cashback
+        })
+
+    return list_of_cards_info
+
+
+def get_top_transactions(filtered_transactions):
+    top_transactions = []
+    sorted_filtered_transactions = sorted(filtered_transactions, key=lambda x: x["Сумма платежа"])
+    i = 0
+    for i, transaction in enumerate(sorted_filtered_transactions):
+        if i < 5:
+            top_transactions.append({
+                "date": transaction.get("Дата платежа"),
+                "amount": transaction.get("Сумма платежа"),
+                "category": transaction.get("Категория"),
+                "description": transaction.get("Описание")
+            })
+            i += 1
+        else:
+            break
+    return top_transactions
+
+
+
+
+if __name__ == "__main__":
+    cards_info = ["*7197", "*4556"]
+    filtered_transactions = [{'Номер карты': '*7197', 'Статус': 'OK', 'Сумма операции': -198.69,
+                              'Валюта операции': 'RUB', 'Сумма платежа': -198.69,
+                              'Валюта платежа': 'RUB', 'Кэшбэк': 1.8, 'Категория': 'Супермаркеты', 'MCC': 5411.0,
+                              'Описание': 'Магнит', 'Бонусы (включая кэшбэк)': 3, 'Округление на инвесткопилку': 0,
+                              'Сумма операции с округлением': 198.69}, {'Дата операции': '15.02.2021 17:28:17',
+                            'Дата платежа': '15.02.2021', 'Номер карты': '*7197', 'Статус': 'OK',
+                            'Сумма операции': -129.0,
+                            'Валюта операции': 'RUB',
+                            'Сумма платежа': -129.0,
+                            'Валюта платежа': 'RUB',
+                            'Кэшбэк': nan, 'Категория': 'Фастфуд',
+                            'MCC': 5814.0, 'Описание': 'Pingvin Kofe I Chaj',
+                            'Бонусы (включая кэшбэк)': 2, 'Округление на инвесткопилку': 0,
+                            'Сумма операции с округлением': 129.0}, {'Дата операции': '15.02.2021 15:51:59',
+                            'Дата платежа': '15.02.2021', 'Номер карты': '*4556', 'Статус': 'OK', 'Сумма операции':
+                            -250.0, 'Валюта операции': 'RUB', 'Сумма платежа': -250.0, 'Валюта платежа': 'RUB',
+                            'Кэшбэк': nan, 'Категория': 'Связь', 'MCC': 4814.0, 'Описание': 'МТС',
+                            'Бонусы (включая кэшбэк)': 0, 'Округление на инвесткопилку': 0,
+                                                                     'Сумма операции с округлением': 250.0}]
+
+
+    print(get_list_of_cards_info(cards_info, filtered_transactions))
