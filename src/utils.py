@@ -1,8 +1,10 @@
 import datetime
 import numpy as np
 import pandas as pd
-from numpy import nan
-
+import json
+import requests
+from dotenv import load_dotenv
+import os
 
 def greetings(input_date: str) -> str:
     """Function <greetings> takes a string with date and time in form YYYY-MM-DD HH:MM:SS
@@ -114,29 +116,44 @@ def get_top_transactions(filtered_transactions):
     return top_transactions
 
 
+def load_user_settings(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+def get_currency_rates(currencies):
+    # Пример использования API для получения курсов валют
+    api_key = os.getenv("API_Key_currency")
+    base_currency = 'RUB'  # Базовая валюта
+    url = f'https://api.exchangerate-api.com/v4/latest/{base_currency}'
+
+    response = requests.get(url)
+    data = response.json()
+
+    rates = {currency: data['rates'].get(currency) for currency in currencies}
+    return rates
+
+def get_stock_prices(stocks):
+    # Пример использования Alpha Vantage API для получения цен акций
+    api_key = os.getenv('API_Key_stokes')
+    stock_prices = {}
+
+    for stock in stocks:
+        url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={stock}&interval=1min&apikey={api_key}'
+        response = requests.get(url)
+        data = response.json()
+
+        # Получаем последнюю цену
+        try:
+            last_refreshed = data['Meta Data']['3. Last Refreshed']
+            last_price = data['Time Series (1min)'][last_refreshed]['1. open']
+            stock_prices[stock] = float(last_price)
+        except KeyError:
+            stock_prices[stock] = None  # Если данные недоступны
+
+    return stock_prices
 
 
+# Пример использования
 if __name__ == "__main__":
-    cards_info = ["*7197", "*4556"]
-    filtered_transactions = [{'Номер карты': '*7197', 'Статус': 'OK', 'Сумма операции': -198.69,
-                              'Валюта операции': 'RUB', 'Сумма платежа': -198.69,
-                              'Валюта платежа': 'RUB', 'Кэшбэк': 1.8, 'Категория': 'Супермаркеты', 'MCC': 5411.0,
-                              'Описание': 'Магнит', 'Бонусы (включая кэшбэк)': 3, 'Округление на инвесткопилку': 0,
-                              'Сумма операции с округлением': 198.69}, {'Дата операции': '15.02.2021 17:28:17',
-                            'Дата платежа': '15.02.2021', 'Номер карты': '*7197', 'Статус': 'OK',
-                            'Сумма операции': -129.0,
-                            'Валюта операции': 'RUB',
-                            'Сумма платежа': -129.0,
-                            'Валюта платежа': 'RUB',
-                            'Кэшбэк': nan, 'Категория': 'Фастфуд',
-                            'MCC': 5814.0, 'Описание': 'Pingvin Kofe I Chaj',
-                            'Бонусы (включая кэшбэк)': 2, 'Округление на инвесткопилку': 0,
-                            'Сумма операции с округлением': 129.0}, {'Дата операции': '15.02.2021 15:51:59',
-                            'Дата платежа': '15.02.2021', 'Номер карты': '*4556', 'Статус': 'OK', 'Сумма операции':
-                            -250.0, 'Валюта операции': 'RUB', 'Сумма платежа': -250.0, 'Валюта платежа': 'RUB',
-                            'Кэшбэк': nan, 'Категория': 'Связь', 'MCC': 4814.0, 'Описание': 'МТС',
-                            'Бонусы (включая кэшбэк)': 0, 'Округление на инвесткопилку': 0,
-                                                                     'Сумма операции с округлением': 250.0}]
-
-
-    print(get_list_of_cards_info(cards_info, filtered_transactions))
+    user_data = get_user_data('user_settings.json')
+    print(user_data)

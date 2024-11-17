@@ -1,5 +1,7 @@
+from dotenv import load_dotenv
+
 from src.utils import get_unique_cards, get_list_of_cards_info, greetings, filter_by_time_range, read_xlsx, \
-    get_top_transactions
+    get_top_transactions, load_user_settings, get_currency_rates, get_stock_prices
 
 
 def get_started_main():
@@ -19,6 +21,17 @@ def get_started_main():
     nested_dict = get_top_transactions(filtered_transactions)
     json_answer[new_key] = nested_dict
 
+    settings = load_user_settings('../user_settings.json')
+    currencies = settings.get('user_currencies', [])
+    stocks = settings.get('user_stocks', [])
+
+    new_key = "currency_rates"
+    nested_dict = get_currency_rates(currencies)
+    json_answer[new_key] = nested_dict
+
+    new_key = "stock_prices"
+    nested_dict = get_stock_prices(stocks)
+    json_answer[new_key] = nested_dict
 
     return json_answer
 
