@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def greetings(input_date: str) -> str:
     """Function <greetings> takes a string with date and time in form YYYY-MM-DD HH:MM:SS
     and returns the string with four different greetings depending on the time"""
@@ -190,7 +191,7 @@ def get_stock_prices(stocks):
             last_price = data["Time Series (1min)"][last_refreshed]["1. open"]
             stock_prices[stock] = float(last_price)
         except KeyError:
-            logger.error(f"Error occurred: KeyError.")
+            logger.error(f"Error occurred in {__name__}: KeyError.")
             stock_prices[stock] = None  # Если данные недоступны
     logger.info("Exiting get_stock_prices function")
     return stock_prices
