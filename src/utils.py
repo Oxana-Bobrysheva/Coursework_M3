@@ -7,6 +7,8 @@ import os
 import logging
 from dotenv import load_dotenv
 
+load_dotenv()
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -159,7 +161,7 @@ def load_user_settings(file_path):
 def get_currency_rates(currencies):
     """Function that makes API request and returns currency information"""
     logger.info("Entering get_currency_rates function")
-    api_key = os.getenv("API_Key_currency")
+    # api_key = os.getenv("API_Key_currency")
     base_currency = "RUB"  # Базовая валюта
     url = f"https://api.exchangerate-api.com/v4/latest/{base_currency}"
 

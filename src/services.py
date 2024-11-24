@@ -1,7 +1,6 @@
 import json
 import pandas as pd
 import logging
-from datetime import datetime
 
 from src.utils import read_xlsx
 
@@ -14,30 +13,33 @@ def analyze_cashback_categories(operations: list[dict], year: int, month: int) -
     """Function for analysis of profitability of the category of increased cashback.
     Returns JSON string."""
     logger.info("Starting cashback analysis for year: %d, month: %d", year, month)
+    if operations == []:
+        return f"File {operations} is empty"
 
-    # Converting the data into a Data Frame for easy analysis
-    df = pd.DataFrame(operations)
+    else:
+        # Converting the data into a Data Frame for easy analysis
+        df = pd.DataFrame(operations)
 
-    # Converting the date into datetime format
-    df["Дата платежа"] = pd.to_datetime(df["Дата платежа"], format="%d.%m.%Y")
+        # Converting the date into datetime format
+        df["Дата платежа"] = pd.to_datetime(df["Дата платежа"], format="%d.%m.%Y")
 
-    # Filtering data according to year and month
-    filtered_df = df[
-        (df["Дата платежа"].dt.year == year) & (df["Дата платежа"].dt.month == month)
-    ]
+        # Filtering data according to year and month
+        filtered_df = df[
+            (df["Дата платежа"].dt.year == year) & (df["Дата платежа"].dt.month == month)
+        ]
 
-    # Checking if data is not empty
-    if filtered_df.empty:
-        logger.warning("No transactions found for year: %d, month: %d", year, month)
-        return json.dumps({}, ensure_ascii=False)
+        # Checking if data is not empty
+        if filtered_df.empty:
+            logger.warning("No transactions found for year: %d, month: %d", year, month)
+            return json.dumps({}, ensure_ascii=False)
 
-    # Grouping by categories and sum up the cashback
-    cashback_analysis = filtered_df.groupby("Категория")["Кэшбэк"].sum().to_dict()
+        # Grouping by categories and sum up the cashback
+        cashback_analysis = filtered_df.groupby("Категория")["Кэшбэк"].sum().to_dict()
 
-    logger.info("Cashback analysis completed: %s", cashback_analysis)
+        logger.info("Cashback analysis completed: %s", cashback_analysis)
 
-    # Returning the result in JSON format
-    return json.dumps(cashback_analysis, ensure_ascii=False, indent=4)
+        # Returning the result in JSON format
+        return json.dumps(cashback_analysis, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":
