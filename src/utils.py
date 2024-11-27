@@ -197,3 +197,7 @@ def get_stock_prices(stocks):
             stock_prices[stock] = None  # Если данные недоступны
     logger.info("Exiting get_stock_prices function")
     return stock_prices
+
+
+if __name__ == '__main__':
+    print(read_xlsx("../data/operations.xlsx"))

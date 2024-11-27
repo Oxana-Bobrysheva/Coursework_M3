@@ -5,7 +5,8 @@ from src.services import analyze_cashback_categories
 import pandas as pd
 
 if __name__ == "__main__":
-    print(get_started_main())
+    input_date = input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")
+    print(get_started_main(input_date))
 
     operations = read_xlsx("../data/operations.xlsx")
     df = pd.DataFrame(operations)

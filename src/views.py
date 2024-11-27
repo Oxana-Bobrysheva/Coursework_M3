@@ -13,10 +13,9 @@ from src.utils import (
 )
 
 
-def get_started_main():
+def get_started_main(input_date):
     """Function that returns JSON answer for the web page MAIN"""
-    # Function starts with request of the date
-    input_date = input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")
+
     json_answer = {"greeting": greetings(input_date)}
 
     # Getting the filtered list of operations from the file according to the time limits
