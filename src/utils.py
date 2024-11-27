@@ -1,10 +1,11 @@
 import datetime
+import json
+import logging
+import os
+
 import numpy as np
 import pandas as pd
-import json
 import requests
-import os
-import logging
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -199,5 +200,5 @@ def get_stock_prices(stocks):
     return stock_prices
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(read_xlsx("../data/operations.xlsx"))

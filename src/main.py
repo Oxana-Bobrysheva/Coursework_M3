@@ -1,8 +1,9 @@
-from src.utils import read_xlsx
-from src.views import get_started_main
+import pandas as pd
+
 from src.reports import expenses_by_category
 from src.services import analyze_cashback_categories
-import pandas as pd
+from src.utils import read_xlsx
+from src.views import get_started_main
 
 if __name__ == "__main__":
     input_date = input("Введите дату в формате YYYY-MM-DD HH:MM:SS - ")

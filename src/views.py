@@ -1,16 +1,9 @@
 import json
 
-from src.utils import (
-    get_unique_cards,
-    get_list_of_cards_info,
-    greetings,
-    filter_by_time_range,
-    read_xlsx,
-    get_top_transactions,
-    load_user_settings,
-    get_currency_rates,
-    get_stock_prices,
-)
+from src.utils import (filter_by_time_range, get_currency_rates,
+                       get_list_of_cards_info, get_stock_prices,
+                       get_top_transactions, get_unique_cards, greetings,
+                       load_user_settings, read_xlsx)
 
 
 def get_started_main(input_date):

@@ -1,6 +1,7 @@
 import json
-import pandas as pd
 import logging
+
+import pandas as pd
 
 from src.utils import read_xlsx
 
@@ -25,7 +26,8 @@ def analyze_cashback_categories(operations: list[dict], year: int, month: int) -
 
         # Filtering data according to year and month
         filtered_df = df[
-            (df["Дата платежа"].dt.year == year) & (df["Дата платежа"].dt.month == month)
+            (df["Дата платежа"].dt.year == year)
+            & (df["Дата платежа"].dt.month == month)
         ]
 
         # Checking if data is not empty

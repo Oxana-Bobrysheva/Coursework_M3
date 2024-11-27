@@ -1,25 +1,30 @@
 import unittest
+from unittest.mock import Mock, mock_open, patch
 
 import pandas as pd
 import pytest
-from unittest.mock import mock_open, patch, Mock
-import json
-from datetime import datetime
-from src.utils import (greetings, time_range, filter_by_time_range,
-                       get_unique_cards, get_list_of_cards_info, get_top_transactions,
-                       load_user_settings, get_currency_rates, get_stock_prices, read_xlsx)
+
+from src.utils import (filter_by_time_range, get_currency_rates,
+                       get_list_of_cards_info, get_stock_prices,
+                       get_top_transactions, get_unique_cards, greetings,
+                       load_user_settings, read_xlsx, time_range)
+
 
 @pytest.fixture
 def mock_logger():
-    with patch('src.utils.logger') as mock_logger:
+    with patch("src.utils.logger") as mock_logger:
         yield mock_logger
 
-@pytest.mark.parametrize("input_date, expected_greeting", [
-    ("2022-01-01 03:00:00", "Доброй ночи"),
-    ("2022-01-01 08:00:00", "Доброе утро"),
-    ("2022-01-01 15:00:00", "Добрый день"),
-    ("2022-01-01 20:00:00", "Добрый вечер")
-])
+
+@pytest.mark.parametrize(
+    "input_date, expected_greeting",
+    [
+        ("2022-01-01 03:00:00", "Доброй ночи"),
+        ("2022-01-01 08:00:00", "Доброе утро"),
+        ("2022-01-01 15:00:00", "Добрый день"),
+        ("2022-01-01 20:00:00", "Добрый вечер"),
+    ],
+)
 def test_greetings(input_date, expected_greeting, mock_logger):
     assert greetings(input_date) == expected_greeting
     mock_logger.info.assert_called_once_with("Entering greetings function")
@@ -38,12 +43,10 @@ def test_time_range():
     assert start_time_2 == "01.03.2022"
     assert end_time_2 == "15.03.2022"
 
+
 def test_read_xlsx(tmp_path):
     # Create a temporary Excel file for testing
-    test_data = {
-        'A': [1, 2, 3],
-        'B': ['foo', 'bar', 'baz']
-    }
+    test_data = {"A": [1, 2, 3], "B": ["foo", "bar", "baz"]}
     test_df = pd.DataFrame(test_data)
     test_file_path = tmp_path / "test_operations.xlsx"
     test_df.to_excel(test_file_path, index=False)
@@ -53,6 +56,7 @@ def test_read_xlsx(tmp_path):
 
     # Check if the operations list is not empty
     assert len(operations) > 0
+
 
 def test_filter_by_time_range():
     # Mock operations data for testing
@@ -108,18 +112,51 @@ def test_get_list_of_cards_info():
 
     # Check if the list_of_cards_info contains the expected card information
     assert len(list_of_cards_info) == 2
-    assert list_of_cards_info[0] == {"last_digits": "3456", "total_spent": 150.0, "cashback": 7}
-    assert list_of_cards_info[1] == {"last_digits": "7654", "total_spent": 75.0, "cashback": 3}
+    assert list_of_cards_info[0] == {
+        "last_digits": "3456",
+        "total_spent": 150.0,
+        "cashback": 7,
+    }
+    assert list_of_cards_info[1] == {
+        "last_digits": "7654",
+        "total_spent": 75.0,
+        "cashback": 3,
+    }
 
 
 def test_get_top_transactions():
     # Mock filtered_transactions data for testing
     filtered_transactions = [
-        {"Дата платежа": "01.01.2022", "Сумма платежа": 100, "Категория": "Groceries", "Описание": "Grocery shopping"},
-        {"Дата платежа": "15.01.2022", "Сумма платежа": 75, "Категория": "Dining", "Описание": "Restaurant bill"},
-        {"Дата платежа": "25.01.2022", "Сумма платежа": 50, "Категория": "Shopping", "Описание": "Online purchase"},
-        {"Дата платежа": "10.02.2022", "Сумма платежа": 200, "Категория": "Travel", "Описание": "Flight ticket"},
-        {"Дата платежа": "05.02.2022", "Сумма платежа": 150, "Категория": "Entertainment", "Описание": "Concert tickets"},
+        {
+            "Дата платежа": "01.01.2022",
+            "Сумма платежа": 100,
+            "Категория": "Groceries",
+            "Описание": "Grocery shopping",
+        },
+        {
+            "Дата платежа": "15.01.2022",
+            "Сумма платежа": 75,
+            "Категория": "Dining",
+            "Описание": "Restaurant bill",
+        },
+        {
+            "Дата платежа": "25.01.2022",
+            "Сумма платежа": 50,
+            "Категория": "Shopping",
+            "Описание": "Online purchase",
+        },
+        {
+            "Дата платежа": "10.02.2022",
+            "Сумма платежа": 200,
+            "Категория": "Travel",
+            "Описание": "Flight ticket",
+        },
+        {
+            "Дата платежа": "05.02.2022",
+            "Сумма платежа": 150,
+            "Категория": "Entertainment",
+            "Описание": "Concert tickets",
+        },
     ]
 
     # Test getting top transactions
@@ -128,12 +165,38 @@ def test_get_top_transactions():
     # Check if the top_transactions list contains the top 5 transactions based on payment amount
     assert len(top_transactions) == 5
     assert top_transactions == [
-        {"date": "25.01.2022", "amount": 50, "category": "Shopping", "description": "Online purchase"},
-        {"date": "15.01.2022", "amount": 75, "category": "Dining", "description": "Restaurant bill"},
-        {"date": "01.01.2022", "amount": 100, "category": "Groceries", "description": "Grocery shopping"},
-        {"date": "05.02.2022", "amount": 150, "category": "Entertainment", "description": "Concert tickets"},
-        {"date": "10.02.2022", "amount": 200, "category": "Travel", "description": "Flight ticket"},
+        {
+            "date": "25.01.2022",
+            "amount": 50,
+            "category": "Shopping",
+            "description": "Online purchase",
+        },
+        {
+            "date": "15.01.2022",
+            "amount": 75,
+            "category": "Dining",
+            "description": "Restaurant bill",
+        },
+        {
+            "date": "01.01.2022",
+            "amount": 100,
+            "category": "Groceries",
+            "description": "Grocery shopping",
+        },
+        {
+            "date": "05.02.2022",
+            "amount": 150,
+            "category": "Entertainment",
+            "description": "Concert tickets",
+        },
+        {
+            "date": "10.02.2022",
+            "amount": 200,
+            "category": "Travel",
+            "description": "Flight ticket",
+        },
     ]
+
 
 class TestLoadUserSettings(unittest.TestCase):
 
@@ -145,22 +208,14 @@ class TestLoadUserSettings(unittest.TestCase):
 
 class TestGetCurrencyRates(unittest.TestCase):
 
-    @patch('src.utils.requests.get')
+    @patch("src.utils.requests.get")
     def test_get_currency_rates(self, mock_get):
         mock_response = Mock()
-        mock_response.json.return_value = {
-            "rates": {
-                "USD": 1.23,
-                "EUR": 0.89
-            }
-        }
+        mock_response.json.return_value = {"rates": {"USD": 1.23, "EUR": 0.89}}
         mock_get.return_value = mock_response
 
         currencies = ["USD", "EUR"]
-        expected_rates = {
-            "USD": 1.23,
-            "EUR": 0.89
-        }
+        expected_rates = {"USD": 1.23, "EUR": 0.89}
 
         result = get_currency_rates(currencies)
         self.assertEqual(result, expected_rates)
@@ -168,22 +223,17 @@ class TestGetCurrencyRates(unittest.TestCase):
 
 class TestGetStockPrices(unittest.TestCase):
 
-    @patch('src.utils.requests.get')
+    @patch("src.utils.requests.get")
     def test_get_stock_prices(self, mock_get):
         mock_response = Mock()
         mock_response.json.return_value = {
             "Meta Data": {"3. Last Refreshed": "2022-01-01 16:00:00"},
-            "Time Series (1min)": {
-                "2022-01-01 16:00:00": {"1. open": "100.0"}
-            }
+            "Time Series (1min)": {"2022-01-01 16:00:00": {"1. open": "100.0"}},
         }
         mock_get.return_value = mock_response
 
         stocks = ["AAPL", "GOOGL"]
-        expected_prices = {
-            "AAPL": 100.0,
-            "GOOGL": 100.0
-        }
+        expected_prices = {"AAPL": 100.0, "GOOGL": 100.0}
 
         result = get_stock_prices(stocks)
         self.assertEqual(result, expected_prices)

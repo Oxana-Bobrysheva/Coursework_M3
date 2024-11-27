@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
+
 import pandas as pd
+
 from src.reports import expenses_by_category
 
 
