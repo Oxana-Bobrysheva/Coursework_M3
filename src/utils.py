@@ -1,15 +1,19 @@
 import datetime
+import json
+import logging
+import os
+
 import numpy as np
 import pandas as pd
-import json
 import requests
-import os
-import logging
 from dotenv import load_dotenv
+
+load_dotenv()
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def greetings(input_date: str) -> str:
     """Function <greetings> takes a string with date and time in form YYYY-MM-DD HH:MM:SS
@@ -158,7 +162,7 @@ def load_user_settings(file_path):
 def get_currency_rates(currencies):
     """Function that makes API request and returns currency information"""
     logger.info("Entering get_currency_rates function")
-    api_key = os.getenv("API_Key_currency")
+    # api_key = os.getenv("API_Key_currency")
     base_currency = "RUB"  # Базовая валюта
     url = f"https://api.exchangerate-api.com/v4/latest/{base_currency}"
 
@@ -190,7 +194,11 @@ def get_stock_prices(stocks):
             last_price = data["Time Series (1min)"][last_refreshed]["1. open"]
             stock_prices[stock] = float(last_price)
         except KeyError:
-            logger.error(f"Error occurred: KeyError.")
+            logger.error(f"Error occurred in {__name__}: KeyError.")
             stock_prices[stock] = None  # Если данные недоступны
     logger.info("Exiting get_stock_prices function")
     return stock_prices
+
+
+if __name__ == "__main__":
+    print(read_xlsx("../data/operations.xlsx"))
